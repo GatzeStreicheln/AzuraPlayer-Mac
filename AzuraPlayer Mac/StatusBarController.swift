@@ -105,7 +105,37 @@ class StatusBarController: NSObject, NSMenuDelegate {
 
     @objc func showAbout() {
         NSApplication.shared.activate(ignoringOtherApps: true)
-        NSApplication.shared.orderFrontStandardAboutPanel(nil)
+
+        let credits = NSMutableAttributedString()
+
+        let linkStyle: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 11),
+            .foregroundColor: NSColor.linkColor
+        ]
+        let labelStyle: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 11),
+            .foregroundColor: NSColor.secondaryLabelColor
+        ]
+
+        let privacy = NSMutableAttributedString(string: "Datenschutz", attributes: linkStyle)
+        privacy.addAttribute(.link,
+            value: URL(string: "https://gatzestreicheln.github.io/AzuraPlayer/privacy.html")!,
+            range: NSRange(location: 0, length: privacy.length))
+
+        let separator = NSAttributedString(string: "   ·   ", attributes: labelStyle)
+
+        let contact = NSMutableAttributedString(string: "Kontakt", attributes: linkStyle)
+        contact.addAttribute(.link,
+            value: URL(string: "mailto:vasco@vkugler.ch")!,
+            range: NSRange(location: 0, length: contact.length))
+
+        credits.append(privacy)
+        credits.append(separator)
+        credits.append(contact)
+
+        NSApplication.shared.orderFrontStandardAboutPanel(options: [
+            .credits: credits
+        ])
     }
 
     @objc func showSettings() {
