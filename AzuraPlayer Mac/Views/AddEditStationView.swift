@@ -9,10 +9,22 @@ struct AddEditStationView: View {
 
     @State private var customName = ""
     @State private var streamURL = ""
+    @State private var urlScheme = "https"
     @State private var apiURL = ""
     @State private var showSongArt = false
     @State private var autoFillAPI = true
     @State private var customImageData: Data? = nil
+
+    private var urlPathBinding: Binding<String> {
+        Binding(
+            get: {
+                if streamURL.hasPrefix("https://") { return String(streamURL.dropFirst(8)) }
+                if streamURL.hasPrefix("http://") { return String(streamURL.dropFirst(7)) }
+                return streamURL
+            },
+            set: { streamURL = "\(urlScheme)://\($0)" }
+        )
+    }
 
     private var isEditing: Bool { editStation != nil }
     private var canSave: Bool { !streamURL.isEmpty && !apiURL.isEmpty }
@@ -54,7 +66,18 @@ struct AddEditStationView: View {
                                     .frame(width: 90, alignment: .trailing)
                                     .foregroundStyle(.secondary)
                                     .font(.system(size: 13))
-                                TextField("", text: $streamURL)
+                                Picker("", selection: $urlScheme) {
+                                    Text("https").tag("https")
+                                    Text("http").tag("http")
+                                }
+                                .pickerStyle(.menu)
+                                .labelsHidden()
+                                .fixedSize()
+                                .onChange(of: urlScheme) { _, newScheme in
+                                    let path = urlPathBinding.wrappedValue
+                                    streamURL = "\(newScheme)://\(path)"
+                                }
+                                TextField("", text: urlPathBinding)
                                     .textFieldStyle(.roundedBorder)
                                     .onChange(of: streamURL) { _, new in
                                         if autoFillAPI { deriveAPIURL(from: new) }
@@ -158,6 +181,7 @@ struct AddEditStationView: View {
             if let station = editStation {
                 customName = station.customName ?? ""
                 streamURL = station.streamURL
+                urlScheme = station.streamURL.hasPrefix("http://") ? "http" : "https"
                 apiURL = station.apiURL
                 showSongArt = station.showSongArt
                 autoFillAPI = station.autoFillAPI
@@ -177,9 +201,12 @@ struct AddEditStationView: View {
                 let shortcode = parts[listenIdx + 1]
                 components?.path = "/api/nowplaying/\(shortcode)"
                 components?.queryItems = nil
-                if let derived = components?.url?.absoluteString {
-                    apiURL = derived
-                }
+                if let derived = components?.url?.absoluteString { apiURL = derived }
+            } else if let hlsIdx = parts.firstIndex(of: "hls"), parts.count > hlsIdx + 1 {
+                let shortcode = parts[hlsIdx + 1]
+                components?.path = "/api/nowplaying/\(shortcode)"
+                components?.queryItems = nil
+                if let derived = components?.url?.absoluteString { apiURL = derived }
             }
         }
     }

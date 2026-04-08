@@ -22,6 +22,7 @@ fileprivate class PlayItemView: NSView {
     private let stationLabel = NSTextField()
     private let coverImageView = NSImageView()
     private let statusIcon   = NSImageView()
+    private let bitrateLabel = NSTextField()
 
     weak var menuItem: NSMenuItem?
 
@@ -41,6 +42,11 @@ fileprivate class PlayItemView: NSView {
             .store(in: &cancellables)
 
         AudioPlayerService.shared.$isBuffering
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.refreshStatusIcon() }
+            .store(in: &cancellables)
+
+        AudioPlayerService.shared.$currentBitrate
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.refreshStatusIcon() }
             .store(in: &cancellables)
@@ -133,6 +139,21 @@ fileprivate class PlayItemView: NSView {
             statusIcon.widthAnchor.constraint(equalToConstant: 14),
             statusIcon.heightAnchor.constraint(equalToConstant: 14)
         ])
+
+        // Bitrate Label
+        bitrateLabel.translatesAutoresizingMaskIntoConstraints = false
+        bitrateLabel.isBezeled = false
+        bitrateLabel.drawsBackground = false
+        bitrateLabel.isEditable = false
+        bitrateLabel.font = NSFont.systemFont(ofSize: 10)
+        bitrateLabel.textColor = .secondaryLabelColor
+        bitrateLabel.isHidden = true
+        addSubview(bitrateLabel)
+
+        NSLayoutConstraint.activate([
+            bitrateLabel.trailingAnchor.constraint(equalTo: statusIcon.leadingAnchor, constant: -4),
+            bitrateLabel.centerYAnchor.constraint(equalTo: statusIcon.centerYAnchor)
+        ])
     }
 
     // MARK: - Mouse
@@ -182,19 +203,16 @@ fileprivate class PlayItemView: NSView {
         stationLabel.stringValue = station.displayName
         stationLabel.isHidden = false
 
-        // Reposition labels: top-aligned (two lines)
         updateLabelConstraints(centered: false)
-
-        // Cover art
         loadCoverArt(for: station)
 
         refreshStatusIcon()
     }
 
-    // Identische Logik wie iOS: buffering > online-check
     private func refreshStatusIcon() {
         guard player.isPlaying else {
             statusIcon.image = nil
+            bitrateLabel.isHidden = true
             return
         }
 
@@ -203,6 +221,13 @@ fileprivate class PlayItemView: NSView {
         statusIcon.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
         statusIcon.image?.isTemplate = true
         statusIcon.contentTintColor = problem ? .systemOrange : .systemGreen
+
+        if !problem, let kbps = player.currentBitrate {
+            bitrateLabel.stringValue = "\(kbps) kbps"
+            bitrateLabel.isHidden = false
+        } else {
+            bitrateLabel.isHidden = true
+        }
     }
 
     private func showIdleState(station: RadioStation) {
@@ -212,7 +237,6 @@ fileprivate class PlayItemView: NSView {
         stationLabel.isHidden = true
         statusIcon.image = nil
 
-        // Reposition label: vertically centered (single line)
         updateLabelConstraints(centered: true)
 
         // Station image or placeholder
@@ -244,7 +268,6 @@ fileprivate class PlayItemView: NSView {
     // MARK: - Cover Loading
 
     private func loadCoverArt(for station: RadioStation) {
-        // 1. Song-spezifisches Cover — nur wenn vom User aktiviert
         if station.showSongArt,
            let artURLString = metadata.currentTrack?.art,
            !artURLString.isEmpty,
@@ -253,14 +276,12 @@ fileprivate class PlayItemView: NSView {
             return
         }
 
-        // 2. Eigenes Senderbild (hochgeladen)
         if let data = station.customImageData, let image = NSImage(data: data) {
             coverImageView.image = image
             coverImageView.contentTintColor = nil
             return
         }
 
-        // 3. Sendercover von der API
         if let artURLString = metadata.stationArtURL,
            !artURLString.isEmpty,
            let url = URL(string: artURLString) {
@@ -268,7 +289,6 @@ fileprivate class PlayItemView: NSView {
             return
         }
 
-        // 4. Fallback-Placeholder
         coverImageView.image = NSImage(systemSymbolName: "music.note", accessibilityDescription: nil)
         coverImageView.contentTintColor = .secondaryLabelColor
     }
