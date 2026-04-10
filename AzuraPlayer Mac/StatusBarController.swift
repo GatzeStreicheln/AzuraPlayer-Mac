@@ -123,14 +123,14 @@ class StatusBarController: NSObject, NSMenuDelegate {
 
         let github = NSMutableAttributedString(string: "GitHub", attributes: linkStyle)
         github.addAttribute(.link,
-            value: URL(string: "https://github.com/GatzeStreicheln/AzuraPlayer-Mac")!,
+            value: URL(string: "https://github.com/gatzenga/AzuraPlayer-Mac")!,
             range: NSRange(location: 0, length: github.length))
 
         let separator = NSAttributedString(string: "   ·   ", attributes: labelStyle)
 
         let privacy = NSMutableAttributedString(string: "Datenschutz", attributes: linkStyle)
         privacy.addAttribute(.link,
-            value: URL(string: "https://gatzestreicheln.github.io/AzuraPlayer/privacy.html")!,
+            value: URL(string: "https://gatzenga.github.io/AzuraPlayer/privacy.html")!,
             range: NSRange(location: 0, length: privacy.length))
 
         let contact = NSMutableAttributedString(string: "Kontakt", attributes: linkStyle)

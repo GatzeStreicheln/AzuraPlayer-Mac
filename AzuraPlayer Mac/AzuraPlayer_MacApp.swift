@@ -1,5 +1,6 @@
 import Cocoa
 
+@MainActor
 class AzuraPlayerApp: NSObject, NSApplicationDelegate {
     var statusBarController: StatusBarController?
 
