@@ -1,3 +1,7 @@
+<p align="left">
+  <img src="AzuraPlayer Mac/Assets.xcassets/AppIcon.appiconset/dark Kopie - 3.png"100" alt="App Logo"/>
+</p>
+
 AzuraPlayer is an app for streaming your self-hosted AzuraCast radio stations.
 
 **Features:**
