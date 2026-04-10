@@ -53,7 +53,7 @@ class StatusBarController: NSObject, NSMenuDelegate {
     }
 
     private func buildMenu() -> NSMenu {
-        let lang = UserDefaults.standard.string(forKey: "appLanguage") ?? "en"
+        let lang = UserDefaults.standard.string(forKey: UserDefaults.Keys.appLanguage) ?? "en"
         let menu = NSMenu()
 
         let playItem = PlayMenuItem()
@@ -166,7 +166,7 @@ class StatusBarController: NSObject, NSMenuDelegate {
 
         let player = AudioPlayerService.shared
         let metadata = MetadataService.shared
-        let showTitle = UserDefaults.standard.bool(forKey: "showSongTitleInMenuBar")
+        let showTitle = UserDefaults.standard.bool(forKey: UserDefaults.Keys.showSongTitleInMenuBar)
 
         var str = ""
         if showTitle, player.isPlaying, let track = metadata.currentTrack, !track.title.isEmpty {

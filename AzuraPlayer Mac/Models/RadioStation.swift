@@ -11,7 +11,6 @@ struct RadioStation: Identifiable, Codable {
     var sortOrder: Int = 0
 
     var fetchedStationName: String?
-    var fetchedStationArtURL: String?
 
     var displayName: String {
         if let custom = customName, !custom.isEmpty { return custom }

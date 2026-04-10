@@ -22,8 +22,8 @@ class AzuraPlayerApp: NSObject, NSApplicationDelegate {
         // Edit-Menu — damit Cmd+C/V/X/Z in Textfeldern funktionieren
         let editItem = NSMenuItem()
         let editMenu = NSMenu(title: "Bearbeiten")
-        editMenu.addItem(NSMenuItem(title: "Rückgängig", action: Selector(("undo:")), keyEquivalent: "z"))
-        editMenu.addItem(NSMenuItem(title: "Wiederholen", action: Selector(("redo:")), keyEquivalent: "Z"))
+        editMenu.addItem(NSMenuItem(title: "Rückgängig", action: #selector(UndoManager.undo), keyEquivalent: "z"))
+        editMenu.addItem(NSMenuItem(title: "Wiederholen", action: #selector(UndoManager.redo), keyEquivalent: "Z"))
         editMenu.addItem(.separator())
         editMenu.addItem(NSMenuItem(title: "Ausschneiden", action: #selector(NSText.cut(_:)), keyEquivalent: "x"))
         editMenu.addItem(NSMenuItem(title: "Kopieren",    action: #selector(NSText.copy(_:)), keyEquivalent: "c"))

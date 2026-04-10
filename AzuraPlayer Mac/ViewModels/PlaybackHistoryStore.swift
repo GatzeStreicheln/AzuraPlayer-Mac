@@ -7,9 +7,9 @@ class PlaybackHistoryStore: ObservableObject {
     @Published var entries: [PlaybackEntry] = []
 
     private let maxEntries = 100
-    private let saveKey = "playback_history"
+    private let saveKey = UserDefaults.Keys.playbackHistory
 
-    init() {
+    private init() {
         load()
     }
 

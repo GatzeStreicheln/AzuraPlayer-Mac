@@ -1,8 +1,15 @@
 import Foundation
 
 extension UserDefaults {
-    @objc dynamic var showSongTitleInMenuBar: Bool {
-        get { bool(forKey: "showSongTitleInMenuBar") }
-        set { set(newValue, forKey: "showSongTitleInMenuBar") }
+    enum Keys {
+        static let appLanguage          = "appLanguage"
+        static let showSongTitleInMenuBar = "showSongTitleInMenuBar"
+        static let savedStations        = "saved_stations_mac"
+        static let playbackHistory      = "playback_history"
+    }
+
+    var showSongTitleInMenuBar: Bool {
+        get { bool(forKey: Keys.showSongTitleInMenuBar) }
+        set { set(newValue, forKey: Keys.showSongTitleInMenuBar) }
     }
 }

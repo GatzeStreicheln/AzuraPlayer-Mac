@@ -46,6 +46,7 @@ class AudioPlayerService: ObservableObject {
 
         player?.pause()
         NotificationCenter.default.removeObserver(self, name: .AVPlayerItemFailedToPlayToEndTime, object: playerItem)
+        NotificationCenter.default.removeObserver(self, name: .AVPlayerItemPlaybackStalled, object: playerItem)
         player = nil
         playerItem = nil
         statusObserver?.invalidate()
@@ -106,6 +107,8 @@ class AudioPlayerService: ObservableObject {
 
     func stop() {
         player?.pause()
+        NotificationCenter.default.removeObserver(self, name: .AVPlayerItemFailedToPlayToEndTime, object: playerItem)
+        NotificationCenter.default.removeObserver(self, name: .AVPlayerItemPlaybackStalled, object: playerItem)
         player = nil
         playerItem = nil
         statusObserver?.invalidate()
@@ -194,7 +197,7 @@ class AudioPlayerService: ObservableObject {
 
         commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget { [weak self] _ in
-            guard let self, let station = self.currentStation else { return .commandFailed }
+            guard let self, let station = self.currentStation ?? self.lastStation else { return .commandFailed }
             self.play(station: station)
             return .success
         }
@@ -213,7 +216,7 @@ class AudioPlayerService: ObservableObject {
 
     // MARK: - Now Playing Info
 
-    func updateNowPlayingInfo() {
+    private func updateNowPlayingInfo() {
         var info = [String: Any]()
 
         let title = MetadataService.shared.currentTrack?.title ?? "Live Stream"

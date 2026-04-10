@@ -253,7 +253,7 @@ fileprivate class PlayItemView: NSView {
     private func showEmptyState() {
         songLabel.font = NSFont.systemFont(ofSize: 13)
         songLabel.textColor = .secondaryLabelColor
-        let lang = UserDefaults.standard.string(forKey: "appLanguage") ?? "en"
+        let lang = UserDefaults.standard.string(forKey: UserDefaults.Keys.appLanguage) ?? "en"
         songLabel.stringValue = tr("No station active", "Kein Sender aktiv", lang)
         stationLabel.isHidden = true
         statusIcon.image = nil
@@ -304,9 +304,6 @@ fileprivate class PlayItemView: NSView {
     }
 
     // MARK: - Label positioning
-
-    private var songCenterY: NSLayoutConstraint?
-    private var songTop: NSLayoutConstraint?
 
     private func updateLabelConstraints(centered: Bool) {
         // Remove existing vertical song constraints

@@ -7,9 +7,9 @@ class StationStore: ObservableObject {
 
     @Published var stations: [RadioStation] = []
 
-    private let saveKey = "saved_stations_mac"
+    private let saveKey = UserDefaults.Keys.savedStations
 
-    init() {
+    private init() {
         load()
         stations.forEach { fetchStationName(for: $0) }
     }

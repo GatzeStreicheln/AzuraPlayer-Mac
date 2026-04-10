@@ -14,6 +14,8 @@ class MetadataService: ObservableObject {
     private var timer: AnyCancellable?
     private var currentAPIURL: String?
 
+    private init() {}
+
     func startPolling(apiURL: String) {
         if currentAPIURL == apiURL && timer != nil { return }
 

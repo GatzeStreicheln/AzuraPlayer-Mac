@@ -9,6 +9,7 @@ import SwiftUI
 @MainActor
 class SettingsWindowController: NSWindowController {
     private static var instance: SettingsWindowController?
+    private static var closeObserver: NSObjectProtocol?
 
     static func show() {
         if instance == nil {
@@ -18,7 +19,7 @@ class SettingsWindowController: NSWindowController {
                 backing: .buffered,
                 defer: false
             )
-            let lang = UserDefaults.standard.string(forKey: "appLanguage") ?? "en"
+            let lang = UserDefaults.standard.string(forKey: UserDefaults.Keys.appLanguage) ?? "en"
             win.title = tr("Settings", "Einstellungen", lang)
             win.isReleasedWhenClosed = false
 
@@ -31,18 +32,22 @@ class SettingsWindowController: NSWindowController {
 
             instance = SettingsWindowController(window: win)
 
-            NotificationCenter.default.addObserver(
+            closeObserver = NotificationCenter.default.addObserver(
                 forName: NSWindow.willCloseNotification,
                 object: win,
                 queue: .main
             ) { _ in
                 Task { @MainActor in
+                    if let token = SettingsWindowController.closeObserver {
+                        NotificationCenter.default.removeObserver(token)
+                        SettingsWindowController.closeObserver = nil
+                    }
                     SettingsWindowController.instance = nil
                 }
             }
         }
 
-        instance?.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
+        instance?.window?.makeKeyAndOrderFront(nil)
     }
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct HistoryView: View {
     @ObservedObject private var store = PlaybackHistoryStore.shared
-    @AppStorage("appLanguage") private var lang = "en"
+    @AppStorage(UserDefaults.Keys.appLanguage) private var lang = "en"
     @State private var showClearConfirmation = false
 
     var body: some View {
@@ -86,18 +86,26 @@ private struct HistoryRow: View {
     let entry: PlaybackEntry
     @State private var artwork: NSImage? = nil
 
-    private var timeString: String {
+    private static let timeFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "HH:mm"
-        return f.string(from: entry.timestamp)
-    }
+        return f
+    }()
 
-    private var dateString: String {
+    private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateStyle = .short
         f.timeStyle = .none
+        return f
+    }()
+
+    private var timeString: String {
+        Self.timeFormatter.string(from: entry.timestamp)
+    }
+
+    private var dateString: String {
         let today = Calendar.current.isDateInToday(entry.timestamp)
-        return today ? "" : f.string(from: entry.timestamp)
+        return today ? "" : Self.dateFormatter.string(from: entry.timestamp)
     }
 
     var body: some View {

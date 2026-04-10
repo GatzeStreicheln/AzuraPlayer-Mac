@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 
 struct AddEditStationView: View {
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("appLanguage") private var lang = "en"
+    @AppStorage(UserDefaults.Keys.appLanguage) private var lang = "en"
     let store: StationStore
     var editStation: RadioStation? = nil
 

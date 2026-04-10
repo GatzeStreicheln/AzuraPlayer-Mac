@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @EnvironmentObject var store: StationStore
-    @AppStorage("appLanguage") private var lang = "en"
+    @AppStorage(UserDefaults.Keys.appLanguage) private var lang = "en"
 
     var body: some View {
         TabView {
@@ -27,7 +27,7 @@ struct SettingsView: View {
 
 private struct StationsTab: View {
     @EnvironmentObject var store: StationStore
-    @AppStorage("appLanguage") private var lang = "en"
+    @AppStorage(UserDefaults.Keys.appLanguage) private var lang = "en"
     @State private var selectedID: RadioStation.ID? = nil
     @State private var showAddSheet = false
     @State private var editingStation: RadioStation? = nil
@@ -256,8 +256,8 @@ private struct StationSettingsRow: View {
 // MARK: - General Tab
 
 private struct GeneralTab: View {
-    @AppStorage("showSongTitleInMenuBar") private var showSongTitleInMenuBar = true
-    @AppStorage("appLanguage") private var lang = "en"
+    @AppStorage(UserDefaults.Keys.showSongTitleInMenuBar) private var showSongTitleInMenuBar = true
+    @AppStorage(UserDefaults.Keys.appLanguage) private var lang = "en"
 
     var body: some View {
         ScrollView {
