@@ -22,7 +22,6 @@ fileprivate class PlayItemView: NSView {
     private let stationLabel = NSTextField()
     private let coverImageView = NSImageView()
     private let statusIcon   = NSImageView()
-    private let bitrateLabel = NSTextField()
 
     weak var menuItem: NSMenuItem?
 
@@ -42,11 +41,6 @@ fileprivate class PlayItemView: NSView {
             .store(in: &cancellables)
 
         AudioPlayerService.shared.$isBuffering
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in self?.refreshStatusIcon() }
-            .store(in: &cancellables)
-
-        AudioPlayerService.shared.$currentBitrate
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.refreshStatusIcon() }
             .store(in: &cancellables)
@@ -140,20 +134,6 @@ fileprivate class PlayItemView: NSView {
             statusIcon.heightAnchor.constraint(equalToConstant: 14)
         ])
 
-        // Bitrate Label
-        bitrateLabel.translatesAutoresizingMaskIntoConstraints = false
-        bitrateLabel.isBezeled = false
-        bitrateLabel.drawsBackground = false
-        bitrateLabel.isEditable = false
-        bitrateLabel.font = NSFont.systemFont(ofSize: 10)
-        bitrateLabel.textColor = .secondaryLabelColor
-        bitrateLabel.isHidden = true
-        addSubview(bitrateLabel)
-
-        NSLayoutConstraint.activate([
-            bitrateLabel.trailingAnchor.constraint(equalTo: statusIcon.leadingAnchor, constant: -4),
-            bitrateLabel.centerYAnchor.constraint(equalTo: statusIcon.centerYAnchor)
-        ])
     }
 
     // MARK: - Mouse
@@ -212,7 +192,6 @@ fileprivate class PlayItemView: NSView {
     private func refreshStatusIcon() {
         guard player.isPlaying else {
             statusIcon.image = nil
-            bitrateLabel.isHidden = true
             return
         }
 
@@ -221,13 +200,6 @@ fileprivate class PlayItemView: NSView {
         statusIcon.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
         statusIcon.image?.isTemplate = true
         statusIcon.contentTintColor = problem ? .systemOrange : .systemGreen
-
-        if !problem, let kbps = player.currentBitrate {
-            bitrateLabel.stringValue = "\(kbps) kbps"
-            bitrateLabel.isHidden = false
-        } else {
-            bitrateLabel.isHidden = true
-        }
     }
 
     private func showIdleState(station: RadioStation) {

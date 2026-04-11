@@ -9,7 +9,6 @@ struct AddEditStationView: View {
 
     @State private var customName = ""
     @State private var streamURL = ""
-    @State private var urlScheme = "https"
     @State private var apiURL = ""
     @State private var showSongArt = false
     @State private var autoFillAPI = true
@@ -22,12 +21,12 @@ struct AddEditStationView: View {
                 if streamURL.hasPrefix("http://") { return String(streamURL.dropFirst(7)) }
                 return streamURL
             },
-            set: { streamURL = "\(urlScheme)://\($0)" }
+            set: { streamURL = "https://\($0)" }
         )
     }
 
     private var isEditing: Bool { editStation != nil }
-    private var canSave: Bool { !streamURL.isEmpty && !apiURL.isEmpty }
+    private var canSave: Bool { !streamURL.isEmpty }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -66,18 +65,14 @@ struct AddEditStationView: View {
                                     .frame(width: 90, alignment: .trailing)
                                     .foregroundStyle(.secondary)
                                     .font(.system(size: 13))
-                                Picker("", selection: $urlScheme) {
-                                    Text("https").tag("https")
-                                    Text("http").tag("http")
-                                }
-                                .pickerStyle(.menu)
-                                .labelsHidden()
-                                .fixedSize()
-                                .onChange(of: urlScheme) { _, newScheme in
-                                    let path = urlPathBinding.wrappedValue
-                                    streamURL = "\(newScheme)://\(path)"
-                                }
-                                TextField("", text: urlPathBinding)
+                                Text("https://")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundStyle(Color.accentColor)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 4)
+                                    .background(Color.secondary.opacity(0.1))
+                                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                                TextField("ihre-domain.com (HLS empfohlen)", text: urlPathBinding)
                                     .textFieldStyle(.roundedBorder)
                                     .onChange(of: streamURL) { _, new in
                                         if autoFillAPI { deriveAPIURL(from: new) }
@@ -172,16 +167,46 @@ struct AddEditStationView: View {
                         }
                         .padding(.top, 4)
                     }
+                    // MARK: Info GroupBox
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 10) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("AzuraCast API-Format:")
+                                    .font(.caption).bold()
+                                Text(verbatim: "https://your-domain.com/api/nowplaying/station_shortcode")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(tr("Supported formats", "Unterstützte Formate", lang))
+                                    .font(.caption).bold()
+                                Text("HLS, MP3, AAC")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(tr("Why HTTPS only?", "Warum nur HTTPS?", lang))
+                                    .font(.caption).bold()
+                                Text(tr(
+                                    "HTTP streams are not reliably supported due to protocol incompatibilities (e.g. ICY/Icecast). HTTPS ensures stable playback for both public stations and AzuraCast.",
+                                    "HTTP-Streams sind aufgrund von Protokoll-Inkompatibilitäten (z. B. ICY/Icecast) nicht zuverlässig. HTTPS gewährleistet stabiles Abspielen – sowohl bei öffentlichen Sendern als auch bei AzuraCast.",
+                                    lang))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.top, 4)
+                    }
+
                 }
                 .padding()
             }
         }
-        .frame(width: 420, height: 400)
+        .frame(width: 420, height: 500)
         .onAppear {
             if let station = editStation {
                 customName = station.customName ?? ""
                 streamURL = station.streamURL
-                urlScheme = station.streamURL.hasPrefix("http://") ? "http" : "https"
                 apiURL = station.apiURL
                 showSongArt = station.showSongArt
                 autoFillAPI = station.autoFillAPI

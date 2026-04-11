@@ -10,7 +10,6 @@ class AudioPlayerService: ObservableObject {
     @Published var isBuffering: Bool = false
     @Published var currentStation: RadioStation?
     @Published var lastStation: RadioStation?
-    @Published var currentBitrate: Int? = nil
 
     private var player: AVPlayer?
     private var playerItem: AVPlayerItem?
@@ -74,7 +73,6 @@ class AudioPlayerService: ObservableObject {
                 case .playing:
                     self?.isBuffering = false
                     self?.playerItem?.preferredForwardBufferDuration = 8
-                    self?.updateBitrate()
                 case .waitingToPlayAtSpecifiedRate:
                     self?.isBuffering = true
                 case .paused:
@@ -101,7 +99,7 @@ class AudioPlayerService: ObservableObject {
 
         isPlaying = true
 
-        MetadataService.shared.startPolling(apiURL: station.apiURL)
+        MetadataService.shared.startPolling(station: station)
         startMetadataTimer()
     }
 
@@ -117,7 +115,6 @@ class AudioPlayerService: ObservableObject {
         timeControlObserver = nil
         isPlaying = false
         isBuffering = false
-        currentBitrate = nil
         stopMetadataTimer()
         stopReconnectTimer()
         MetadataService.shared.stopPolling()
@@ -147,22 +144,6 @@ class AudioPlayerService: ObservableObject {
         metadataTimer = nil
     }
 
-    private func updateBitrate() {
-        if let events = playerItem?.accessLog()?.events,
-           let last = events.last,
-           last.indicatedBitrate > 0 {
-            currentBitrate = Int(last.indicatedBitrate / 1000)
-            return
-        }
-        guard let item = playerItem else { return }
-        Task {
-            guard let track = try? await item.asset.loadTracks(withMediaType: .audio).first,
-                  let rate = try? await track.load(.estimatedDataRate),
-                  rate > 0 else { return }
-            await MainActor.run { self.currentBitrate = Int(rate / 1000) }
-        }
-    }
-
     // MARK: - Reconnect
 
     @objc private func playerItemFailedToPlay() {
@@ -176,7 +157,10 @@ class AudioPlayerService: ObservableObject {
     }
 
     private func scheduleReconnect() {
-        guard reconnectAttempts < 5 else { return }
+        guard reconnectAttempts < 5 else {
+            DispatchQueue.main.async { self.isBuffering = false }
+            return
+        }
         let delay = min(pow(2.0, Double(reconnectAttempts)), 30.0)
         reconnectTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { [weak self] _ in
             guard let self, let station = self.currentStation else { return }
