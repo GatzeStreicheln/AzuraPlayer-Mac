@@ -23,8 +23,8 @@ https://testflight.apple.com/join/ugGTP1ka
 
 <table>
   <tr>
-    <td><img src="Screenshots/menubar.png" width="300"/></td>
-    <td><img src="Screenshots/stations.png" width="300"/></td>
+    <td><img src="screenshots/menubar.png" width="300"/></td>
+    <td><img src="screenshots/stations.png" width="300"/></td>
     <td><img src="screenshots/history.png" width="300"/></td>
   </tr>
 </table>
