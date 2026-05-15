@@ -135,12 +135,12 @@ class StatusBarController: NSObject, NSMenuDelegate {
 
         let privacy = NSMutableAttributedString(string: "Datenschutz", attributes: linkStyle)
         privacy.addAttribute(.link,
-            value: URL(string: "https://gatzenga.github.io/AzuraPlayer/privacy.html")!,
+            value: URL(string: "https://vkugler.app/azuraplayer_privacy.html")!,
             range: NSRange(location: 0, length: privacy.length))
 
         let contact = NSMutableAttributedString(string: "Kontakt", attributes: linkStyle)
         contact.addAttribute(.link,
-            value: URL(string: "mailto:kontakt@vkugler.ch")!,
+            value: URL(string: "mailto:contact@vkugler.app")!,
             range: NSRange(location: 0, length: contact.length))
 
         credits.append(website)
